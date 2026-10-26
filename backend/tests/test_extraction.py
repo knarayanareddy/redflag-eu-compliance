@@ -232,6 +232,7 @@ async def test_missing_rp_only_becomes_blocking_with_verified_test_rules(
     for rule_id in ("RF-ART19-01", "RF-ART19-02", "RF-ART19-03", "RF-ART19-04", "RF-ART19-05"):
         rule = test_rules[rule_id]
         rule["source_quote"] = f"SYNTHETIC TEST ONLY: {rule_id}; not a statutory quote."
+        rule.pop("source_quote_status", None)
         rule["source_url"] = "https://example.invalid/synthetic-rule"
         rule["source_retrieved_at"] = "2026-10-26T00:00:00Z"
         rule["source_sha256"] = hashlib.sha256(rule["source_quote"].encode()).hexdigest()
