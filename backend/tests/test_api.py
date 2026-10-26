@@ -47,3 +47,16 @@ async def test_assessment_rejects_extra_request_fields(client: httpx.AsyncClient
         json={"rule_id": "RF-ID-CHK", "raw_source": "EAN: x", "made_up": True},
     )
     assert response.status_code == 422
+
+
+async def test_listing_screen_exposes_fail_closed_recall_twin(client: httpx.AsyncClient) -> None:
+    response = await client.post(
+        "/v1/listings/screen",
+        json={"listing_text": "Product: Wooden chess set", "product_category": "Toys"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["recall_twin"]["shared_failure_mode"]["verdict"] == "UNDETERMINED"
+    assert body["risk_correlations"] == []
+    assert body["warnings"] == []
+    assert body["recall_corpus_available"] is False
