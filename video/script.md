@@ -1,12 +1,12 @@
-# 2:50 Demo Video Script — RedFlag — EU Product-Safety Pre-Flight Compliance Gate
+# Demo script — RedFlag evidence-gate prototype
 
-**Hard limit:** ≤ 3:00. **Target:** 2:50.
+> Use this script only for the current implementation. Do not claim that model routing, GPSR analysis, recall matching, or sandbox validation is live.
 
-| Timecode | Visual Shot | Spoken Narrative (No marketing fluff) |
+| Time | Visual | Narration |
 |---|---|---|
-| `0:00 - 0:20` | Persona face or problem context (e.g. real marketplace listing / solder board / grid map) | State the one-sentence pain in the persona's words: *"Sofie, 34, runs a 3-person homeware brand in Rotterdam"* Highlight headline stat: 1,700 marketplace offers swept by EU authorities · 42% non-compliant · 4,671 recalls in 2025 · 0 generic wrappers |
-| `0:20 - 0:50` | Live product demonstration | Paste real input -> Instant <8s verdict and primary action above fold. Show exact reason chips. |
-| `0:50 - 1:25` | Architecture & Nebius Token Factory | Show the 3 model tiers on screen (Nano, Super, Ultra). Highlight **Token Factory Sandbox verification with guest networking disabled**. |
-| `1:25 - 1:55` | The Proof & Empirical Study | Show results from Serverless Job batch study. Show Sandbox branching A/B chart (gate-on vs gate-off false accept delta). |
-| `1:55 - 2:25` | Real customer feedback & limitations | Quote real user interview. Flash `LIMITATIONS.md` with honest failure modes. Mention accessibility provisions. |
-| `2:25 - 2:50` | The Insider Insight | Summarize what was learned that someone outside the problem wouldn't know. Closing call to action. |
+| 0:00–0:20 | Show the input form and prototype label | “This is an early local prototype for checking evidence integrity. It is not a product-compliance assessment.” |
+| 0:20–0:55 | Submit a quote that appears exactly in source text, then submit a mismatched quote | “The API checks whether the quote is an exact substring. This verifies text presence only—it does not show that the quote supports a claim.” |
+| 0:55–1:25 | Select a GPSR rule and run a check | “The statutory source data is not yet verified. The gate returns UNDETERMINED instead of suggesting a legal conclusion.” |
+| 1:25–1:55 | Check a valid GTIN, then an invalid check digit | “The current PASS and FAIL states are limited to this internal check-digit calculation. They do not mean that a product is compliant or safe.” |
+| 1:55–2:25 | Show the placeholder check and test results | “The prototype also checks for a small set of common template placeholders. These are narrow software checks, not legal review.” |
+| 2:25–2:50 | Show README limitations and proposed SPEC status note | “The larger system is a proposal. Listing ingestion, recall matching, verified legal rules, model calls, and sandbox validation remain future work.” |

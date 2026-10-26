@@ -9,9 +9,8 @@
       "Statutory text MUST be copied verbatim from EUR-Lex by ticket A-T04 (scripts/fetch_eurlex.py),",
       "never typed from memory by a human or an agent. A misquoted statute in a compliance tool is fatal",
       "to the Quality-of-the-Idea and Potential-Impact criteria.",
-      "A rule whose source_quote still starts with TODO_VERIFY is EXCLUDED from the deterministic gate at",
-      "runtime (see backend/app/gate/rules_loader.py) and the run must downgrade to AT_RISK with reason",
-      "'rule_unverified'.",
+      "A rule whose source_quote still starts with TODO_VERIFY is excluded by backend/app/gate/gate.py.",
+      "The current prototype returns UNDETERMINED for that rule and does not provide a legal compliance verdict.",
       "article_ref values below are best-effort pointers from public summaries and MUST be confirmed against",
       "the official text before use. Where the exact sub-paragraph letter is uncertain it is written as '(?)'."
     ],

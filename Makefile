@@ -1,29 +1,30 @@
-# Makefile for redflag-eu-compliance
+UV ?= uv
 
-.PHONY: help sample check test demo lint format clean
+.PHONY: help sample check test serve demo ui clean
 
 help:
 	@echo "Available commands:"
-	@echo "  make sample   - Run pipeline offline on golden fixtures with uv"
-	@echo "  make check    - Run linting, typechecking, and schema validation tests"
-	@echo "  make test     - Run full pytest test suite"
-	@echo "  make demo     - Run end-to-end demo (requires NEBIUS_API_KEY)"
-	@echo "  make clean    - Remove virtualenvs, caches, and build artifacts"
+	@echo "  make sample  - Run offline API, gate, and schema tests"
+	@echo "  make check   - Run tests and Ruff linting"
+	@echo "  make serve   - Start the local API on 0.0.0.0:8000"
+	@echo "  make ui      - Start the Vite UI on 0.0.0.0:5173 (API must be running)"
+	@echo "  make clean   - Remove virtualenvs, caches, and build artifacts"
 
-sample:
-	cd backend && uv run --extra dev pytest tests/test_schemas.py -v
+sample test:
+	cd backend && $(UV) run --extra dev pytest tests/ -v
 
 check:
-	cd backend && uv run --extra dev pytest -v
+	cd backend && $(UV) run --extra dev pytest tests/ -v
+	cd backend && $(UV) run --extra dev ruff check app tests
 
-test:
-	cd backend && uv run --extra dev pytest tests/ -v
+serve demo:
+	cd backend && $(UV) run uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-demo:
-	cd backend && uv run python -m app.main
+ui:
+	cd frontend && npm run dev -- --host 0.0.0.0
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
-	find . -type d -name ".ruff_cache" -exec rm -rf {} +
-	rm -rf backend/.venv frontend/node_modules
+	find . -type d -name "__pycache__" -prune -exec rm -rf {} +
+	find . -type d -name ".pytest_cache" -prune -exec rm -rf {} +
+	find . -type d -name ".ruff_cache" -prune -exec rm -rf {} +
+	rm -rf backend/.venv backend/build backend/*.egg-info frontend/node_modules frontend/dist

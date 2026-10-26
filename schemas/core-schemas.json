@@ -149,8 +149,7 @@
         "retrieved_at": {"type": "string", "format": "date-time"},
         "sha256": {"type": ["string", "null"]},
         "ttl_seconds": {"type": ["integer", "null"]},
-        "trust": {"enum": ["primary", "official_secondary", "web", "model_derived"]},
-        "note": "trust='model_derived' MUST be rejected by citations.register(). A language model's prose may never be a citation of record."
+        "trust": {"enum": ["primary", "official_secondary", "web", "model_derived"]}
       }
     },
 
