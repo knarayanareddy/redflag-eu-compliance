@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/redflag/schemas/core-schemas.json",
+  "title": "RedFlag core contracts",
+  "description": "FROZEN after ticket A-T09. SPEC.md §5 is the authoritative prose description; this file is the machine-checkable contract consumed by backend/app/models.py (Pydantic v2) and by backend/tests/test_schemas.py. Changing anything here requires a dedicated ticket that updates every consumer in the same commit.",
+  "schema_version": "1.0.0",
+
+  "$defs": {
+
+    "EvidenceSpan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "quote"],
+      "properties": {
+        "source": {"enum": ["title", "description", "bullet_points", "spec_table", "seller_block", "compliance_block", "images", "category_breadcrumb"]},
+        "quote": {"type": "string", "minLength": 1, "description": "MUST be an exact substring of the referenced source text. Enforced in code by s2_extract_fields.py; a non-matching quote forces status=UNPARSEABLE and confidence=0."},
+        "char_start": {"type": ["integer", "null"], "minimum": 0},
+        "char_end": {"type": ["integer", "null"], "minimum": 0},
+        "image_sha256": {"type": ["string", "null"]}
+      }
+    },
+
+    "FieldExtraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "confidence"],
+      "properties": {
+        "status": {"enum": ["PRESENT", "ABSENT", "AMBIGUOUS", "UNPARSEABLE"]},
+        "value": {},
+        "evidence_span": {"oneOf": [{"$ref": "#/$defs/EvidenceSpan"}, {"type": "null"}]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "extra": {"type": "object"}
+      }
+    },
+
+    "ListingSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "source_url", "marketplace", "fetched_at", "fetch_mode", "title", "description_text", "destination_countries", "images", "raw_html_sha256", "is_fixture"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^ls_"},
+        "source_url": {"type": "string", "format": "uri"},
+        "marketplace": {"enum": ["bol.com", "amazon.nl", "amazon.de", "amazon.fr", "amazon.it", "amazon.es", "ebay", "etsy", "allegro", "kaufland", "zalando", "shopify", "other", "fixture"]},
+        "fetched_at": {"type": "string", "format": "date-time"},
+        "fetch_mode": {"enum": ["live", "fixture", "fallback_fixture"]},
+        "title": {"type": "string"},
+        "brand": {"type": ["string", "null"]},
+        "description_html": {"type": ["string", "null"]},
+        "description_text": {"type": "string"},
+        "bullet_points": {"type": "array", "items": {"type": "string"}, "default": []},
+        "price_eur": {"type": ["number", "null"]},
+        "currency": {"type": ["string", "null"]},
+        "destination_countries": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^[A-Z]{2}$"}},
+        "category_breadcrumb": {"type": "array", "items": {"type": "string"}, "default": []},
+        "images": {"type": "array", "items": {"type": "object", "required": ["sha256", "role"], "properties": {"url": {"type": ["string", "null"]}, "local_path": {"type": ["string", "null"]}, "sha256": {"type": "string"}, "role": {"enum": ["hero", "packaging", "warning", "label", "other"]}}}},
+        "seller_block_text": {"type": ["string", "null"]},
+        "compliance_block_text": {"type": ["string", "null"]},
+        "spec_table": {"type": "array", "items": {"type": "object", "required": ["k", "v"], "properties": {"k": {"type": "string"}, "v": {"type": "string"}}}, "default": []},
+        "raw_html_sha256": {"type": "string"},
+        "is_fixture": {"type": "boolean"},
+        "fetch_error": {"type": ["string", "null"]}
+      }
+    },
+
+    "ListingFields": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["listing_id", "fields", "model", "schema_ok", "ledger_id"],
+      "properties": {
+        "listing_id": {"type": "string"},
+        "fields": {
+          "type": "object",
+          "required": ["product_identifier", "manufacturer_identity", "manufacturer_contact_postal", "manufacturer_contact_electronic", "responsible_person_identity", "responsible_person_postal", "responsible_person_electronic", "product_image_present", "warnings_or_safety_info", "instructions_language_ok"],
+          "properties": {
+            "product_identifier": {"allOf": [{"$ref": "#/$defs/FieldExtraction"}], "properties": {"extra": {"properties": {"identifier_kind": {"enum": ["ean13", "ean8", "gtin12", "gtin14", "model", "batch", "serial", "other", "none"]}}}}},
+            "manufacturer_identity": {"$ref": "#/$defs/FieldExtraction"},
+            "manufacturer_contact_postal": {"$ref": "#/$defs/FieldExtraction"},
+            "manufacturer_contact_electronic": {"$ref": "#/$defs/FieldExtraction"},
+            "responsible_person_identity": {"$ref": "#/$defs/FieldExtraction"},
+            "responsible_person_postal": {"allOf": [{"$ref": "#/$defs/FieldExtraction"}], "properties": {"extra": {"properties": {"country_iso": {"type": ["string", "null"], "pattern": "^[A-Z]{2}$"}, "in_eu27_or_eea": {"type": ["boolean", "null"]}}}}},
+            "responsible_person_electronic": {"$ref": "#/$defs/FieldExtraction"},
+            "product_image_present": {"$ref": "#/$defs/FieldExtraction"},
+            "warnings_or_safety_info": {"allOf": [{"$ref": "#/$defs/FieldExtraction"}], "properties": {"extra": {"properties": {"languages_detected": {"type": "array", "items": {"type": "string", "pattern": "^[a-z]{2}$"}}, "explicit_none_claimed": {"type": "boolean"}}}}},
+            "instructions_language_ok": {"$ref": "#/$defs/FieldExtraction"}
+          }
+        },
+        "vision": {"type": ["object", "null"], "properties": {"ce_mark_detected": {"type": ["boolean", "null"]}, "warning_pictograms": {"type": "array", "items": {"type": "string"}}, "printed_responsible_person_block": {"type": ["boolean", "null"]}, "image_sha256s": {"type": "array", "items": {"type": "string"}}}},
+        "model": {"type": "string"},
+        "schema_ok": {"type": "boolean"},
+        "min_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "ledger_id": {"type": "string"}
+      }
+    },
+
+    "ObligationSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["listing_id", "product_class", "applicable_obligations", "applicability_confidence", "abstain", "tier_used"],
+      "properties": {
+        "listing_id": {"type": "string"},
+        "product_class": {"enum": ["toy", "childcare", "electrical", "charger_or_power_supply", "battery_containing", "magnet_containing", "cosmetic_adjacent", "food_contact", "textile", "lighting", "other"]},
+        "age_grading": {"enum": ["0-3", "3-6", "6-12", "12+", "n/a"]},
+        "harmonisation_legislation_applies": {"type": "array", "items": {"type": "string"}, "default": []},
+        "applicable_obligations": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["rule_id", "applies"], "properties": {"rule_id": {"type": "string", "pattern": "^RF-"}, "applies": {"type": "boolean"}, "reason": {"type": "string"}, "citation_ids": {"type": "array", "items": {"type": "string"}}}}},
+        "extra_warnings_required": {"type": "array", "items": {"type": "string"}, "default": []},
+        "destination_language_requirements": {"type": "array", "items": {"type": "object", "required": ["country", "languages"], "properties": {"country": {"type": "string", "pattern": "^[A-Z]{2}$"}, "languages": {"type": "array", "items": {"type": "string", "pattern": "^[a-z]{2}$"}}}}},
+        "applicability_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "abstain": {"type": "boolean"},
+        "abstain_reason": {"type": ["string", "null"]},
+        "tier_used": {"enum": ["nano", "super", "ultra"], "description": "Which model produced this. Reported so we can publish 'Ultra invoked on N of M runs'."},
+        "escalation_reason": {"type": ["string", "null"], "description": "Null when Nano sufficed; otherwise 'low_confidence' | 'regulated_category' | 'high_penalty_destination'"},
+        "ledger_id": {"type": ["string", "null"]}
+      }
+    },
+
+    "RecallTwin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["listing_id", "candidates", "shared_failure_mode"],
+      "properties": {
+        "listing_id": {"type": "string"},
+        "exact_barcode_hit": {"type": ["string", "null"], "description": "alert_number if the listing's GTIN matches a Safety Gate barcode. Produces finding RF-RECALL-EXACT at BLOCKING severity."},
+        "candidates": {"type": "array", "maxItems": 5, "items": {"type": "object", "additionalProperties": false, "required": ["alert_number", "publication_date", "notifying_country", "category", "product", "risk_types", "danger_verbatim", "alert_url", "similarity"], "properties": {"alert_number": {"type": "string"}, "publication_date": {"type": "string", "format": "date"}, "notifying_country": {"type": "string"}, "country_of_origin": {"type": ["string", "null"]}, "category": {"type": "string"}, "product": {"type": "string"}, "brand": {"type": ["string", "null"]}, "barcode": {"type": ["string", "null"]}, "risk_types": {"type": "array", "items": {"type": "string"}}, "danger_verbatim": {"type": "string"}, "measures": {"type": ["string", "null"]}, "image_urls": {"type": "array", "items": {"type": "string"}}, "alert_url": {"type": "string", "format": "uri"}, "similarity": {"type": "number", "minimum": 0, "maximum": 1}, "similarity_basis": {"enum": ["embedding_cosine", "barcode_exact", "keyword"]}}}},
+        "shared_failure_mode": {"type": "object", "additionalProperties": false, "required": ["verdict", "reasoning", "cited_alert_numbers"], "properties": {"verdict": {"enum": ["SHARES", "POSSIBLY_SHARES", "DOES_NOT_SHARE", "UNDETERMINED"]}, "reasoning": {"type": "string"}, "cited_alert_numbers": {"type": "array", "items": {"type": "string"}, "description": "HARD PRECONDITION enforced in code: must be a subset of candidates[].alert_number. Violation -> retry once -> abstain."}}},
+        "model": {"type": ["string", "null"]},
+        "ledger_id": {"type": ["string", "null"]}
+      }
+    },
+
+    "LiveCurrency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["queries", "available"],
+      "properties": {
+        "available": {"type": "boolean", "description": "False when Tavily was unreachable. When false the Verdict may not be COMPLIANT; it downgrades to AT_RISK with reason 'live_check_unavailable'."},
+        "queries": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["purpose", "query", "executed_at", "results_returned", "results_used", "results_rejected"], "properties": {"purpose": {"enum": ["standard_currency", "national_penalties", "recent_guidance"]}, "query": {"type": "string"}, "destination_country": {"type": ["string", "null"]}, "executed_at": {"type": "string", "format": "date-time"}, "results_returned": {"type": "integer", "minimum": 0}, "results_used": {"type": "integer", "minimum": 0}, "results_rejected": {"type": "integer", "minimum": 0}, "rejection_reasons": {"type": "array", "items": {"type": "string"}}, "citation_ids": {"type": "array", "items": {"type": "string"}}, "latency_ms": {"type": "integer"}, "cost_usd": {"type": "number"}}}}
+      }
+    },
+
+    "Citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "locator", "retrieved_at", "trust"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^cit_"},
+        "kind": {"enum": ["regulation", "official_dataset", "web_search", "fetched_document", "sandbox_run", "measurement", "user_input", "model_derived"]},
+        "locator": {"type": "string", "minLength": 3},
+        "quote": {"type": ["string", "null"]},
+        "retrieved_at": {"type": "string", "format": "date-time"},
+        "sha256": {"type": ["string", "null"]},
+        "ttl_seconds": {"type": ["integer", "null"]},
+        "trust": {"enum": ["primary", "official_secondary", "web", "model_derived"]},
+        "note": "trust='model_derived' MUST be rejected by citations.register(). A language model's prose may never be a citation of record."
+      }
+    },
+
+    "Finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "severity", "rule_id", "statement", "citation_ids", "gate_checks_passed"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^f_"},
+        "severity": {"enum": ["BLOCKING", "MAJOR", "MINOR", "INFO"]},
+        "rule_id": {"type": "string", "pattern": "^RF-"},
+        "statement": {"type": "string"},
+        "citation_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^cit_"}},
+        "gate_checks_passed": {"type": "array", "items": {"type": "string"}},
+        "evidence": {"type": "object", "properties": {"quote": {"type": ["string", "null"]}, "source": {"type": ["string", "null"]}, "measurement": {"type": ["object", "null"]}}},
+        "fix": {"type": ["string", "null"]},
+        "recall_twin": {"type": ["object", "null"], "properties": {"alert_number": {"type": "string"}, "alert_url": {"type": "string"}, "image_url": {"type": ["string", "null"]}, "danger_verbatim": {"type": "string"}}}
+      }
+    },
+
+    "RejectedClaim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "reason"],
+      "properties": {
+        "claim": {"type": "string"},
+        "reason": {"enum": ["citation_missing", "citation_expired", "citation_has_no_quote", "citation_untrusted_model_derived", "measurement_absent", "confidence_below_floor", "cited_alert_not_in_candidates", "rule_unverified"]},
+        "stage": {"type": ["string", "null"]}
+      },
+      "description": "Displayed in the UI as a distinct 'Dropped (uncited)' section. Showing rejections is a trust feature, and mirrors the Telltale review where judges valued '5 proposed, 5 backed by evidence, 0 rejected'."
+    },
+
+    "Verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "listing_id", "verdict", "headline", "action_first", "findings", "gate", "cost", "timings_ms", "generated_at"],
+      "properties": {
+        "run_id": {"type": "string", "pattern": "^run_"},
+        "listing_id": {"type": "string"},
+        "verdict": {"enum": ["WOULD_BE_SUPPRESSED", "AT_RISK", "COMPLIANT", "UNDETERMINED"]},
+        "headline": {"type": "string", "maxLength": 90, "description": "e.g. '2 of 5 required fields missing'. Shown in the VerdictBanner."},
+        "action_first": {"type": "object", "additionalProperties": false, "required": ["primary", "copy_targets"], "properties": {"primary": {"type": "string"}, "copy_targets": {"type": "array", "items": {"type": "object", "required": ["marketplace", "label", "text"], "properties": {"marketplace": {"type": "string"}, "label": {"type": "string"}, "text": {"type": "string"}}}}, "deadline_hint": {"type": ["string", "null"]}, "routing_instruction": {"type": ["string", "null"]}}},
+        "findings": {"type": "array", "items": {"$ref": "#/$defs/Finding"}},
+        "gate": {"type": "object", "additionalProperties": false, "required": ["checks_run", "checks_passed", "checks_failed", "rejected_claims", "abstain"], "properties": {"checks_run": {"type": "integer"}, "checks_passed": {"type": "integer"}, "checks_failed": {"type": "integer"}, "rejected_claims": {"type": "array", "items": {"$ref": "#/$defs/RejectedClaim"}}, "abstain": {"type": "boolean"}, "abstain_reason": {"type": ["string", "null"]}, "determinism_hash": {"type": "string", "description": "sha256 of the canonicalised gate output. Same input must produce the same hash — asserted in tests."}}},
+        "artifact": {"type": ["object", "null"], "additionalProperties": false, "properties": {"sha256": {"type": "string"}, "bytes": {"type": "integer"}, "generated_in_sandbox": {"type": "boolean", "const": true}, "network_disabled_during_validation": {"type": "boolean", "const": true}, "sandbox_operation_id": {"type": "string"}, "sandbox_image_uuid": {"type": "string"}, "validation_report": {"type": "object"}, "local_path": {"type": "string"}}},
+        "live_currency": {"$ref": "#/$defs/LiveCurrency"},
+        "cost": {"type": "object", "required": ["total_usd", "by_model"], "properties": {"total_usd": {"type": "number"}, "by_model": {"type": "object", "additionalProperties": {"type": "number"}}, "tavily_calls": {"type": "integer"}, "cached_tokens": {"type": "integer"}, "cached_token_savings_usd": {"type": "number"}}},
+        "timings_ms": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "generated_at": {"type": "string", "format": "date-time"},
+        "disclaimer": {"type": "string", "description": "Must equal the short disclaimer from data/rules/gpsr-rules.json"}
+      }
+    },
+
+    "LedgerLine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "run_id", "ts", "kind", "stage", "status"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^led_"},
+        "run_id": {"type": "string"},
+        "ts": {"type": "string", "format": "date-time"},
+        "kind": {"enum": ["chat.completions", "embeddings", "tavily.search", "tavily.extract", "sandbox.operation", "sandbox.branch", "sandbox.image", "fetch.listing", "fetch.document"]},
+        "stage": {"type": "string"},
+        "model": {"type": ["string", "null"]},
+        "request": {"type": "object", "properties": {"prompt_tokens": {"type": "integer"}, "completion_tokens": {"type": "integer"}, "cached_tokens": {"type": "integer"}, "tools": {"type": "integer"}, "response_format": {"type": ["string", "null"]}}},
+        "response": {"type": "object", "properties": {"finish_reason": {"type": ["string", "null"]}, "valid_json": {"type": ["boolean", "null"]}, "schema_ok": {"type": ["boolean", "null"]}}},
+        "cost_usd": {"type": "number"},
+        "latency_ms": {"type": "integer"},
+        "status": {"enum": ["ok", "error", "truncated", "schema_violation", "gate_rejected", "timeout", "rate_limited", "budget_exceeded"]},
+        "error": {"type": ["string", "null"]},
+        "citation_ids_produced": {"type": "array", "items": {"type": "string"}, "default": []},
+        "notes": {"type": ["string", "null"], "description": "e.g. 'Ultra invoked because Nano applicability_confidence=0.41 < 0.75'. These notes are the raw material for docs/MODEL-USAGE.md."}
+      }
+    },
+
+    "BatchReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["report_id", "generated_at", "methodology", "summary"],
+      "properties": {
+        "report_id": {"type": "string"},
+        "generated_at": {"type": "string", "format": "date-time"},
+        "runner": {"enum": ["nebius_serverless_job", "local_process"], "description": "Be honest about which. A real n=150 local run beats an unfinished Serverless Job."},
+        "serverless_job_id": {"type": ["string", "null"]},
+        "methodology": {"type": "object", "required": ["n_seeded", "n_completed", "n_failed", "categories", "marketplaces", "date_range", "fetch_mode_mix", "exclusions", "known_biases"], "properties": {"n_seeded": {"type": "integer"}, "n_completed": {"type": "integer"}, "n_failed": {"type": "integer"}, "categories": {"type": "array", "items": {"type": "string"}}, "marketplaces": {"type": "array", "items": {"type": "string"}}, "date_range": {"type": "object", "properties": {"start": {"type": "string"}, "end": {"type": "string"}}}, "fetch_mode_mix": {"type": "object"}, "exclusions": {"type": "array", "items": {"type": "string"}}, "known_biases": {"type": "array", "items": {"type": "string"}}}},
+        "summary": {"type": "object", "required": ["verdict_distribution", "missing_rate_by_field"], "properties": {"verdict_distribution": {"type": "object"}, "missing_rate_by_field": {"type": "object"}, "missing_rate_by_marketplace": {"type": "object"}, "missing_rate_by_destination_country": {"type": "object"}, "recall_twin_hit_rate": {"type": "number"}, "exact_barcode_hits": {"type": "integer"}, "abstention_rate": {"type": "number"}, "ultra_invocation_rate": {"type": "number", "description": "'Ultra invoked on N of M runs' — the cost-control headline."}}},
+        "cost": {"type": "object", "properties": {"total_usd": {"type": "number"}, "usd_per_listing": {"type": "number"}, "by_model": {"type": "object"}, "all_ultra_counterfactual_usd": {"type": "number", "description": "What the same batch would have cost routing every stage to Ultra. This is the baseline comparison the judges explicitly asked slash-agent for."}}},
+        "wall_time_seconds": {"type": "number"}
+      }
+    },
+
+    "ABGateReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["experiment_id", "sandbox_image_uuid", "n_cases", "arms", "conclusion_sentence"],
+      "properties": {
+        "experiment_id": {"type": "string"},
+        "sandbox_image_uuid": {"type": "string", "description": "ONE immutable image, branched twice. Proves 'prepare once, reuse safely'."},
+        "n_cases": {"type": "integer", "minimum": 100},
+        "arms": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "object", "additionalProperties": false, "required": ["arm", "branch_id", "n", "false_accept_rate", "false_reject_rate", "undetermined_rate", "mean_cost_usd", "mean_latency_ms"], "properties": {"arm": {"enum": ["gate_on", "gate_off"]}, "branch_id": {"type": "string"}, "n": {"type": "integer"}, "false_accept_rate": {"type": "number"}, "false_reject_rate": {"type": "number"}, "undetermined_rate": {"type": "number"}, "mean_cost_usd": {"type": "number"}, "mean_latency_ms": {"type": "number"}}}},
+        "delta": {"type": "object", "properties": {"false_accept_rate_points": {"type": "number"}, "cost_savings_usd": {"type": "number"}}},
+        "conclusion_sentence": {"type": "string", "description": "One sentence with real numbers. Goes in the README's first screen and in the video at 1:25."}
+      }
+    }
+  },
+
+  "types": {
+    "ListingSnapshot": {"$ref": "#/$defs/ListingSnapshot"},
+    "ListingFields": {"$ref": "#/$defs/ListingFields"},
+    "ObligationSet": {"$ref": "#/$defs/ObligationSet"},
+    "RecallTwin": {"$ref": "#/$defs/RecallTwin"},
+    "LiveCurrency": {"$ref": "#/$defs/LiveCurrency"},
+    "Citation": {"$ref": "#/$defs/Citation"},
+    "Finding": {"$ref": "#/$defs/Finding"},
+    "RejectedClaim": {"$ref": "#/$defs/RejectedClaim"},
+    "Verdict": {"$ref": "#/$defs/Verdict"},
+    "LedgerLine": {"$ref": "#/$defs/LedgerLine"},
+    "BatchReport": {"$ref": "#/$defs/BatchReport"},
+    "ABGateReport": {"$ref": "#/$defs/ABGateReport"}
+  }
+}

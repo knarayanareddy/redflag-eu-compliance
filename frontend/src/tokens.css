@@ -1,0 +1,21 @@
+/* RedFlag Design System — Safety Signage Palette */
+:root {
+  --color-bg-primary: #0F172A;
+  --color-bg-secondary: #1E293B;
+  --color-bg-card: #182234;
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #94A3B8;
+  --color-text-muted: #64748B;
+  --color-border: #334155;
+
+  /* Safety Signage Accents */
+  --color-danger: #EF4444;      /* Safety Gate Alert Red */
+  --color-warning: #F59E0B;     /* Hazard Amber */
+  --color-success: #10B981;     /* Verified Pass Green */
+  --color-accent: #38BDF8;      /* Inspection Cyan */
+  --color-nvidia: #76B900;      /* NVIDIA Green */
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
