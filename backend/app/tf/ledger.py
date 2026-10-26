@@ -1,7 +1,6 @@
 import json
 import time
 from pathlib import Path
-from typing import Optional, Dict, Any
 
 LEDGER_PATH = Path(__file__).resolve().parents[3] / "runs" / "ledger.jsonl"
 
@@ -15,7 +14,7 @@ def record_telemetry(
     cost_usd: float = 0.0,
     latency_ms: float = 0.0,
     status: str = "ok",
-    notes: Optional[str] = None
+    notes: str | None = None
 ):
     entry = {
         "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

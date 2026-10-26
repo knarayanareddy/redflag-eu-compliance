@@ -1,115 +1,47 @@
-# RedFlag — EU Product-Safety Pre-Flight Compliance Gate
+# RedFlag — EU product-safety evidence-gate prototype
 
-> **Find out in 8 seconds whether the EU will let you sell your product — pre-flight screening against Regulation (EU) 2023/988 (GPSR), semantic recall matching against 20 years of EU Safety Gate data, and Sandbox-verified marketplace packs.**
->
-> **Headline impact:** `1,700 marketplace offers swept by EU authorities · 42% non-compliant · 4,671 recalls in 2025 · 0 generic wrappers`
+> **Status: early prototype, not an EU product-compliance assessment.** The repository currently provides a local API and small UI for checking exact-quote presence, GTIN check digits, and common template placeholders. Statutory rules are unverified; the system deliberately abstains on them. It does not decide whether a product may be sold, provide legal advice, certify compliance, or call an LLM.
 
-[![CI](https://github.com/knarayanareddy/redflag-eu-compliance/actions/workflows/ci.yml/badge.svg)](https://github.com/knarayanareddy/redflag-eu-compliance/actions)
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Track](https://img.shields.io/badge/Track-Best-green.svg)](docs/SUBMISSION-CHECKLIST.md)
+## Run locally
 
-**Target Award:** Nebius × NVIDIA Global AI Hackathon — Best Apps and Agents (Eligible for Best Use of Tavily $3,000)
-
----
-
-## ⚡ Try it in 5 minutes (No API key needed)
+Requirements: Python 3.11+, [uv](https://docs.astral.sh/uv/), and Node.js/npm.
 
 ```bash
-git clone https://github.com/knarayanareddy/redflag-eu-compliance.git
-cd redflag-eu-compliance
+# Terminal 1: API
+make serve
 
-# 1. Run offline verification against cached fixtures (no key, no cost, deterministic)
-make sample
+# Terminal 2: UI
+cd frontend
+npm ci
+npm run dev -- --host 0.0.0.0
+```
 
-# 2. Run full test suite & schema check
+Open the Vite URL shown in the terminal. The UI calls the API through Vite's `/v1` proxy. API documentation is available at `/docs` on port 8000.
+
+Run backend tests/lint and build the frontend with:
+
+```bash
 make check
+cd frontend && npm ci && npm run build
 ```
 
-With a Nebius Token Factory API key:
-```bash
-export NEBIUS_API_KEY="your-token-factory-key"
-export TAVILY_API_KEY="your-tavily-key"   # optional / bonus track
-make demo
-```
+No API keys are required. The current implementation performs no external model or web calls.
 
-| Command | Needs Key? | What it proves |
-|---|:---:|---|
-| `make sample` | No | Full end-to-end pipeline operates offline against golden fixtures |
-| `make check` | No | Code quality, Pydantic/JSON schema integrity, and gate rules pass |
-| `make demo` | Yes | Real-time inference through Nebius Token Factory and deterministic gate |
-| `make batch` | Yes | Nebius Serverless Job batch processing for empirical evaluation study |
+## What is implemented
 
----
+- `GET /health` — process health.
+- `GET /v1/info` — explicitly reports that legal compliance verdicts are disabled.
+- `GET /v1/rules` — rule metadata and verification status.
+- `POST /v1/assessments` — exact quote integrity check plus the implemented internal GTIN-check-digit and placeholder checks. Unverified or unsupported rules return `UNDETERMINED`.
+- A minimal React UI for submitting source text and viewing these results.
 
-## 🎯 The Problem & The Persona
+A quote match means only that the quote exists in the submitted text; it is **not** semantic support for a claim.
 
-### Persona
-**Sofie, 34, runs a 3-person homeware brand in Rotterdam. Sells ~600 SKUs across bol.com and Amazon. Needs instant clarity on GPSR Article 19 listing suppression risks before products are delisted.**
+## Known blockers before any legal use
 
-### The Pain
-Users cannot afford probabilistic LLM hallucinations or opaque compliance rejections. In critical decision paths, an AI tool must provide **citable evidence, hard deterministic safety/compliance gates, and formal abstention (`UNDETERMINED`)** when confidence is low.
+1. The GPSR rules are seed data. Many statutory quotes are `TODO_VERIFY(...)`, and the rules have not been independently verified against EUR-Lex.
+2. The repository does not yet implement listing ingestion, field extraction, obligation applicability, Safety Gate recall matching, live-source currency checks, model routing, artifact generation, or sandbox verification.
+3. The prototype has no product-level compliance verdict. Never use its internal `PASS`/`FAIL` checks as evidence of GPSR compliance.
+4. Human specialist review and authoritative legal sources remain necessary. See [LIMITATIONS.md](LIMITATIONS.md).
 
----
-
-## 🧠 The Four Judging Criteria Addressed
-
-### 1. Technological Implementation (25%)
-- **Multi-Tiered Model Routing:**
-  - `nvidia/Nemotron-3-Ultra-550b-a55b`: Deep reasoning, legal/standard applicability, complex arbitration.
-  - `nvidia/nemotron-3-super-120b-a12b`: Intermediate high-throughput semantic evaluation.
-  - `nvidia/nemotron-3-nano`: Low-latency deterministic structured extraction.
-- **Nebius Token Factory Sandboxes:**
-  - Artifacts are verified inside isolated containers with **guest networking disabled** to prove zero data exfiltration and zero reliance on ungrounded web lookups.
-  - Sandbox **branching** is utilized to perform A/B counterfactual evaluation (gate-on vs gate-off).
-- **Cost & Latency Ledger:** Every request appends to `runs/ledger.jsonl`, documenting exact prompt tokens, completion tokens, cached token savings, and execution latency.
-
-### 2. Design (25%)
-- **Immediate Value (< 30s to Aha):** High-priority verdict and action buttons displayed above the fold; supporting regulatory or telemetry evidence collapsed below.
-- **Custom Design System:** Built on custom design tokens in `frontend/src/tokens.css` (no stock purple-gradient AI themes).
-- **Accessibility & Control:** Full keyboard navigation, ARIA semantics, and explicit progress states with cancel/stop controls.
-
-### 3. Potential Impact (25%)
-- **Original Empirical Research:** Running a batch study over real-world data (via Nebius Serverless Jobs) to publish concrete aggregate statistics.
-- **Customer Grounded:** Designed to address verified industry bottlenecks (e.g. 560 regulatory marketplace delisting orders, 20–30% electronics rework costs, or grid queue delays).
-
-### 4. Quality of the Idea (25%)
-- **Non-Obvious Domain Insight:** Addresses systemic problems rather than building a generic LLM wrapper.
-- **Tri-State Deterministic Gating:** Employs code-level invariants (`PASS`, `FAIL`, `UNDETERMINED`). If an assertion lacks verbatim source support, the gate automatically downgrades to `UNDETERMINED`.
-
----
-
-## 📁 Repository Layout
-
-```
-├── LICENSE                         <- Apache 2.0 open-source licence
-├── README.md                       <- Project overview & judging evidence
-├── LIMITATIONS.md                  <- Honest failure modes & coverage boundaries
-├── ARCHITECTURE.md                 <- System dataflow & gate mechanics
-├── SPEC.md                         <- Comprehensive engineering specification & tickets
-├── Makefile                        <- Standard command targets (sample, check, demo)
-├── schemas/
-│   └── core-schemas.json           <- Frozen JSON schema contracts
-├── data/                           <- Rule tables, taxonomies, and fixtures
-├── docs/                           <- Protocols, rubric walkthrough, platform guide
-│   ├── AGENT-DELEGATION-PROTOCOL.md
-│   ├── JUDGING-RUBRIC.md
-│   └── PLATFORM-CAPABILITIES.md
-├── backend/
-│   ├── pyproject.toml
-│   ├── app/
-│   │   ├── main.py                 <- FastAPI application
-│   │   ├── tf/                     <- Token Factory client & telemetry ledger
-│   │   └── gate/                   <- Deterministic tri-state gate
-│   └── tests/
-├── frontend/
-│   ├── package.json
-│   └── src/tokens.css              <- Custom design system
-├── jobs/                           <- Serverless batch jobs
-└── runs/
-    └── sample_ledger.jsonl         <- Instrumentation ledger
-```
-
----
-
-## 🛡️ License
-Distributed under the **Apache License, Version 2.0**. See [`LICENSE`](LICENSE) for details.
+`SPEC.md` describes a proposed future system; it is not evidence that those components exist. The actual current behavior is defined by the code and tests.

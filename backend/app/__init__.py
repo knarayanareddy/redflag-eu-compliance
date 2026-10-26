@@ -1,1 +1,1 @@
-"""App root package."""\n
+"""RedFlag backend application package."""

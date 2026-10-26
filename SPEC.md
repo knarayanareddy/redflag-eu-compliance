@@ -3,6 +3,8 @@
 **Idea A · Track: Best Apps and Agents · Also eligible: Best Use of Tavily ($3,000)**
 **Version:** 1.0 · 26 Oct 2026 · **Build window:** Sun 26 Oct → Thu 30 Oct 2026, 19:00 CEST
 
+> **Status: proposed future-state specification, not a description of the current build.** The implemented repository is a local evidence-gate prototype; GPSR rules are unverified and legal compliance verdicts are disabled. See `README.md` and `ARCHITECTURE.md` for implemented behavior. Do not present planned model routing, recall matching, sandbox verification, or empirical studies as completed features.
+
 > Read `_shared/agent-delegation-protocol.md` before dispatching any ticket in this file.
 > Read `_shared/judging-rubric.md` before writing any user-facing copy.
 
