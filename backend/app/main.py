@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.gate.gate import DeterministicGate, load_rules, rule_is_verified
 from app.stages.s2_extract_fields import extract_fields
+from app.stages.s4_recall_twin import match_recall_twins
 
 rules = load_rules()
 gate = DeterministicGate(rules)
@@ -21,7 +22,7 @@ app = FastAPI(
         "Extract listing fields and screen evidence. Unverified legal rules abstain; "
         "this prototype does not provide legal advice or product certification."
     ),
-    version="0.3.0",
+    version="0.4.0",
 )
 
 
@@ -39,6 +40,8 @@ class ListingScreenRequest(BaseModel):
 
     listing_text: str = Field(min_length=1, max_length=100_000)
     source_format: Literal["text", "html"] = "text"
+    product_category: str | None = Field(default=None, max_length=120)
+    description: str | None = Field(default=None, max_length=100_000)
 
 
 @app.get("/health")
@@ -257,10 +260,46 @@ def screen_listing(request: ListingScreenRequest) -> dict[str, Any]:
     verdict, citation_chips = _screen_verdict(
         listing_fields["listing_id"], listing_fields, elapsed_ms
     )
+    identifier_field = listing_fields["fields"].get("product_identifier", {})
+    identifier_kind = (identifier_field.get("extra") or {}).get("identifier_kind")
+    identifier = (
+        identifier_field.get("value")
+        if identifier_field.get("status") == "PRESENT"
+        and identifier_kind in {"ean8", "ean13", "gtin12", "gtin14"}
+        else None
+    )
+    recall = match_recall_twins(
+        listing_id=listing_fields["listing_id"],
+        product_category=request.product_category or "",
+        description=request.description or request.listing_text,
+        identifier=identifier,
+    )
+    citation_ids = {citation["id"] for citation in citation_chips}
+    citation_chips.extend(
+        citation for citation in recall.citation_chips if citation["id"] not in citation_ids
+    )
+    warnings: list[dict[str, Any]] = []
+    if recall.recall_twin["exact_barcode_hit"]:
+        warnings.append({
+            "code": "RECALL_EXACT_BARCODE_MATCH",
+            "alert_number": recall.recall_twin["exact_barcode_hit"],
+            "message": "The submitted EAN/GTIN exactly matches a barcode in the local Safety Gate sample corpus; review the linked alert before proceeding.",
+        })
+    for correlation in recall.risk_correlation:
+        warnings.append({
+            "code": "RECALL_RISK_CORRELATION",
+            "alert_number": correlation["alert_number"],
+            "matched_hazards": correlation["matched_hazards"],
+            "message": "Listing keywords overlap with risk types in a local Safety Gate alert; this is a manual-review lead, not a safety or compliance determination.",
+        })
     return {
         "listing_fields": listing_fields,
         "citation_chips": citation_chips,
         "verdict": verdict,
+        "recall_twin": recall.recall_twin,
+        "risk_correlations": recall.risk_correlation,
+        "recall_corpus_available": recall.corpus_available,
+        "warnings": warnings,
     }
 
 
