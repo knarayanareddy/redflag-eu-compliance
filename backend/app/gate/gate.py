@@ -48,6 +48,8 @@ def rule_is_verified(rule: Mapping[str, Any]) -> bool:
         return False
     if quote.lstrip().startswith("TODO_VERIFY"):
         return False
+    if rule.get("source_quote_status") == "USER_SUPPLIED_CANDIDATE_UNVERIFIED":
+        return False
     if rule.get("human_verified") is not True:
         return False
 
