@@ -1,5 +1,7 @@
 # RedFlag — EU product-safety evidence-gate prototype
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-2ea44f?style=for-the-badge)](https://knarayanareddy.github.io/redflag-eu-compliance/)
+
 > **Status: early prototype, not an EU product-compliance assessment.** RedFlag extracts seller-supplied listing text, runs a fail-closed statutory screening path, and can compare it with a local Safety Gate corpus when one is installed. The current GPSR rules remain unverified, and this checkout has no official Safety Gate sample corpus. Legal compliance verdicts are not enabled.
 
 ## Run locally
@@ -33,7 +35,7 @@ Build the static client-side GitHub Pages demo with:
 make build-pages
 ```
 
-The Pages build uses `VITE_STATIC_DEMO=true`, embeds three synthetic title-only product examples, and makes no API calls. `.github/workflows/deploy-pages.yml` builds and deploys `frontend/dist` when changes reach `main`; repository Pages settings and a successful deployment are still required before the public URL is live. Record a silent Playwright walkthrough with `cd frontend && npm run record:demo` after installing Chromium (`npx playwright install chromium`) and ffmpeg with `libx264`; the script trims the capture to 165 seconds and writes `docs/media/redflag-demo.mp4`.
+The Pages build uses `VITE_STATIC_DEMO=true`, embeds three synthetic title-only product examples, and makes no API calls. The demo URL, reported live by the project owner, is [knarayanareddy.github.io/redflag-eu-compliance](https://knarayanareddy.github.io/redflag-eu-compliance/); `.github/workflows/deploy-pages.yml` deploys `frontend/dist` on pushes to `main`. Record a silent Playwright walkthrough with `cd frontend && npm run record:demo` after installing Chromium and Playwright's video helper (`npx playwright install chromium ffmpeg`) plus ffmpeg with `libx264`; the script trims the capture to 165 seconds and writes `docs/media/redflag-demo.mp4`. Use `FFMPEG_PATH` if ffmpeg is not on PATH.
 
 ## What is implemented
 

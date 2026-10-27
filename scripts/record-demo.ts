@@ -2,7 +2,9 @@
 /**
  * Record the static, client-side demo. The resulting capture is silent; use
  * video/script.md for narration. Prerequisites: npm ci, `npx playwright install chromium`,
- * and ffmpeg with libx264 available on PATH. Run from frontend/ with `npm run record:demo`.
+ * and ffmpeg with libx264 available. Run from frontend/ with `npm run record:demo`;
+ * optional PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH, PLAYWRIGHT_CHROMIUM_ARGS (JSON array),
+ * and FFMPEG_PATH variables select alternate local binaries.
  */
 import { createRequire } from 'node:module';
 import { spawn, spawnSync } from 'node:child_process';
@@ -66,7 +68,14 @@ async function main() {
   let browser: any;
   try {
     await waitForPreview();
-    browser = await chromium.launch({ headless: true });
+    const launchOptions: any = { headless: true };
+    if (process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH) {
+      launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+    }
+    if (process.env.PLAYWRIGHT_CHROMIUM_ARGS) {
+      launchOptions.args = JSON.parse(process.env.PLAYWRIGHT_CHROMIUM_ARGS);
+    }
+    browser = await chromium.launch(launchOptions);
     const context = await browser.newContext({
       viewport: { width: 1280, height: 720 },
       deviceScaleFactor: 1,
@@ -82,11 +91,18 @@ async function main() {
     });
     await timedShot(page, 25_000, async () => {
       await page.getByRole('button', { name: 'Screen Listing' }).click();
+      await page.getByText('SIMULATED DEMO HOLD — PRODUCT NOT CLEARED FOR PUBLICATION').waitFor();
+      await page.getByText(/Fail-closed demonstration state/).waitFor();
     });
     await timedShot(page, 25_000, async () => {
-      await page.getByRole('heading', { name: /Safety Gate reference/i }).scrollIntoViewIfNeeded();
+      await page.getByRole('heading', { name: /Recall twin comparison/i }).scrollIntoViewIfNeeded();
+      await page.getByText('VERIFIED SYNTHETIC DEMO FIXTURE').waitFor();
+      await page.getByRole('heading', { name: /Scenario reference: A12\/00123\/24/ }).waitFor();
+      await page.getByText(/not authenticated official EU alert data/).waitFor();
     });
     await timedShot(page, 25_000, async () => {
+      await page.locator('.static-banner').scrollIntoViewIfNeeded();
+      await page.waitForTimeout(2_500);
       await page.getByRole('heading', { name: /Evidence snapshot/i }).scrollIntoViewIfNeeded();
     });
     await timedShot(page, 23_000, async () => {
@@ -108,7 +124,8 @@ async function main() {
     await browser.close();
     browser = undefined;
 
-    const conversion = spawnSync('ffmpeg', [
+    const ffmpegExecutable = process.env.FFMPEG_PATH || 'ffmpeg';
+    const conversion = spawnSync(ffmpegExecutable, [
       '-y', '-i', webmPath, '-t', '165', '-an', '-c:v', 'libx264', '-preset', 'veryfast',
       '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', outputFile,
     ], { stdio: 'inherit' });
