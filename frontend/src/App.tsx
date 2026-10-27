@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import StaticDemoDashboard from './StaticDemoDashboard';
 
 type ListingField = {
   status: string;
@@ -81,7 +82,7 @@ function bannerText(verdict: string, headline: string): string {
   }
 }
 
-export default function App() {
+function ApiDashboard() {
   const [inputMode, setInputMode] = useState<'text' | 'url'>('text');
   const [listingUrl, setListingUrl] = useState('');
   const [listingText, setListingText] = useState('');
@@ -227,4 +228,10 @@ export default function App() {
       <footer><span>REDFLAG / LOCAL EVIDENCE SCREEN</span><span>Not legal advice. No product sale determination. Human review required.</span></footer>
     </main>
   );
+}
+
+export default function App() {
+  return import.meta.env.VITE_STATIC_DEMO === 'true'
+    ? <StaticDemoDashboard />
+    : <ApiDashboard />;
 }

@@ -1,6 +1,6 @@
 UV ?= uv
 
-.PHONY: help sample check test serve demo ui clean
+.PHONY: help sample check test serve demo ui build-pages clean
 
 help:
 	@echo "Available commands:"
@@ -8,6 +8,7 @@ help:
 	@echo "  make check   - Run tests and Ruff linting"
 	@echo "  make serve   - Start the local API on 0.0.0.0:8000"
 	@echo "  make ui      - Start the Vite UI on 0.0.0.0:5173 (API must be running)"
+	@echo "  make build-pages - Build the static client-side GitHub Pages demo"
 	@echo "  make clean   - Remove virtualenvs, caches, and build artifacts"
 
 sample test:
@@ -22,6 +23,9 @@ serve demo:
 
 ui:
 	cd frontend && npm run dev -- --host 0.0.0.0
+
+build-pages:
+	cd frontend && VITE_STATIC_DEMO=true npm run build
 
 clean:
 	find . -type d -name "__pycache__" -prune -exec rm -rf {} +
