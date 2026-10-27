@@ -25,7 +25,15 @@ make check
 cd frontend && npm ci && npm run build
 ```
 
-No API keys are required. The current implementation performs no external model, marketplace, EUR-Lex, or Safety Gate calls. Listing URLs are accepted as references only; the user must paste visible listing text for screening.
+No API keys are required. The API prototype performs no external model, marketplace, EUR-Lex, or Safety Gate calls. Listing URLs are accepted as references only; the API user must paste visible listing text for screening.
+
+Build the static client-side GitHub Pages demo with:
+
+```bash
+make build-pages
+```
+
+The Pages build uses `VITE_STATIC_DEMO=true`, embeds three synthetic title-only product examples, and makes no API calls. `.github/workflows/deploy-pages.yml` builds and deploys `frontend/dist` when changes reach `main`; repository Pages settings and a successful deployment are still required before the public URL is live. Record a silent Playwright walkthrough with `cd frontend && npm run record:demo` after installing Chromium (`npx playwright install chromium`) and ffmpeg with `libx264`; the script trims the capture to 165 seconds and writes `docs/media/redflag-demo.mp4`.
 
 ## What is implemented
 

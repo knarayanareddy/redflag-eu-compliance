@@ -1,12 +1,20 @@
-# Demo script — RedFlag evidence-gate prototype
+# RedFlag demo walkthrough — 2:45 (165 seconds)
 
-> Use this script only for the current implementation. Do not claim that model routing, GPSR analysis, recall matching, or sandbox validation is live.
+> **Recording status: draft.** All marketplace cards are synthetic title-only examples. The alert reference and 58% sweep figure mentioned below are unverified claims from the task/spec, not verified official records. Keep the verification caveats in the narration and on screen. This script does not claim a vector match, legal finding, or live EUR-Lex/Safety Gate sync.
 
-| Time | Visual | Narration |
-|---|---|---|
-| 0:00–0:20 | Show the input form and prototype label | “This is an early local prototype for checking evidence integrity. It is not a product-compliance assessment.” |
-| 0:20–0:55 | Submit a quote that appears exactly in source text, then submit a mismatched quote | “The API checks whether the quote is an exact substring. This verifies text presence only—it does not show that the quote supports a claim.” |
-| 0:55–1:25 | Select a GPSR rule and run a check | “The statutory source data is not yet verified. The gate returns UNDETERMINED instead of suggesting a legal conclusion.” |
-| 1:25–1:55 | Check a valid GTIN, then an invalid check digit | “The current PASS and FAIL states are limited to this internal check-digit calculation. They do not mean that a product is compliant or safe.” |
-| 1:55–2:25 | Show the placeholder check and test results | “The prototype also checks for a small set of common template placeholders. These are narrow software checks, not legal review.” |
-| 2:25–2:50 | Show README limitations and proposed SPEC status note | “The larger system is a proposal. Listing ingestion, recall matching, verified legal rules, model calls, and sandbox validation remain future work.” |
+| Shot | Time | Length | Visual / action | Narration |
+|---|---:|---:|---|---|
+| 1 — Hook | 0:00–0:20 | 20s | Open the Pages demo. Highlight the project note that records 13 December 2024 as the GPSR applicability date; show the source-verification caveat beside the 58% claim. | “Our project notes record 13 December 2024 as the GPSR applicability date; verify that against EUR-Lex before publication. The draft brief also cites a 58 percent sweep figure. We have not confirmed its Commission source, so we label it unverified—not as a compliance result.” |
+| 2 — Ingestion | 0:20–0:45 | 25s | Select “Magnetic Building Spheres 216pcs,” then click “Screen Listing.” Point out the synthetic-demo label and title terms in the extraction panel. | “This is a synthetic listing title, not a live marketplace page. The static client demo extracts only visible words: magnetic, building spheres, and 216 pieces. It has no GTIN, manufacturer details, packaging, or uploaded contact documents to inspect.” |
+| 3 — Recall reference | 0:45–1:10 | 25s | Show the side-by-side listing and task-supplied alert reference. Read the unverified badge; point to the text-overlap note and disclaimer. | “The task supplied alert reference A12 slash 00123 slash 24 and described magnetic pinch and bowel-perforation risk. We have not verified that record against Safety Gate. The word ‘magnetic’ overlaps; that is not an official recall match, a vector result, or proof of a shared defect.” |
+| 4 — Evidence gate | 1:10–1:35 | 25s | Show absent manufacturer/responsible-person contact fields and the red demo-only hold banner. Pause on “no legal determination.” | “The sample title does not include manufacturer or EU responsible-person contacts. The screen pauses this demo because its evidence is incomplete. That is not a statutory suppression decision: the legal rules are unverified, and CE-documentation requirements are not assessed here.” |
+| 5 — Degraded / offline | 1:35–1:58 | 23s | Use the recording automation to switch the loaded page offline. Show the offline indicator and run the local simulation again. | “After the static page loads, the walkthrough works offline because this Pages mode uses local demo data and makes no API request. This is a browser connectivity demonstration only—not a sandbox network-isolation test and not evidence of a live source check.” |
+| 6 — Limitations | 1:58–2:25 | 27s | Show the limitations text: no official fixture corpus, no EUR-Lex live sync, alert reference unverified, statistics pending source confirmation. | “The repository has no verified Safety Gate sample corpus and no EUR-Lex live sync. The four supplied quotations remain unverified candidates; no legal reviewer or source hash has been confirmed. The 58 percent figure also needs its primary release and denominator checked before anyone repeats it as fact.” |
+| 7 — Close | 2:25–2:45 | 20s | Return to the three demo cards and the uncertainty banner. End on the RedFlag wordmark and a human-review note. | “RedFlag’s goal is to make evidence and recall leads easier to review before publication. Today this is a prototype, not an autonomous compliance gate. It shows what it cannot prove—and routes the unresolved decision to a human.” |
+
+## Timing notes
+
+- Shot lengths sum to exactly 165 seconds (2:45). The recorder trims the silent Playwright capture to 165 seconds; the narration is a separate recording task.
+- Do not remove the `UNVERIFIED` and `SYNTHETIC DEMO` labels in editing.
+- Do not describe the task-supplied alert as an official EU alert or the text overlap as a match.
+- `scripts/record-demo.ts` records a silent browser walkthrough; voiceover, captions, and human source review are not generated by that script.
