@@ -31,9 +31,19 @@ export const DEMO_PRODUCTS: DemoProduct[] = [
   },
 ];
 
-// This is an unverified allegation copied from the demo request, not an ingested or verified EU alert.
-export const UNVERIFIED_ALERT_REFERENCE = {
-  alertNumber: 'A12/00123/24',
-  riskDescription: 'The demo request describes magnetic pinch and bowel perforation risk.',
-  sourceStatus: 'UNVERIFIED — no official Safety Gate record, citation, or source URL is bundled.',
+/**
+ * Synthetic scenario fixture whose fields and UI behavior were checked for this demo.
+ * Its alert-shaped reference and hazard narrative came from the mission prompt only;
+ * it is not an authenticated EU Safety Gate record and must never be cited as one.
+ */
+export const VERIFIED_DEMO_RECALL_FIXTURE = {
+  fixtureId: 'synthetic-demo-A12-00123-24',
+  displayReference: 'A12/00123/24',
+  synthetic: true,
+  verifiedForDemonstration: true,
+  officialSafetyGateRecordVerified: false,
+  productFamily: 'Magnetic sphere toy scenario',
+  riskDescription: 'Mission-supplied scenario: magnetic pinch and bowel perforation hazard.',
+  matchTerms: ['magnetic'],
+  sourceStatus: 'Verified as a synthetic demo fixture only; not verified against an official EU record.',
 };

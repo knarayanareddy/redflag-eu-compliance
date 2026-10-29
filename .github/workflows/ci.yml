@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: uv sync --project backend --locked --extra dev
-      - run: uv run --project backend --locked --extra dev pytest -q
+      - run: uv run --project backend --locked --extra dev pytest -q -c backend/pyproject.toml
       - run: uv run --project backend --locked --extra dev ruff check backend/app backend/tests
 
   frontend:

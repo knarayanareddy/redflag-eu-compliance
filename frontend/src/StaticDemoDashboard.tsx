@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { DEMO_PRODUCTS, UNVERIFIED_ALERT_REFERENCE, type DemoProduct } from './demoData';
+import { DEMO_PRODUCTS, VERIFIED_DEMO_RECALL_FIXTURE, type DemoProduct } from './demoData';
 import './static-demo.css';
 
 type ScreenedDemo = {
@@ -87,9 +87,9 @@ export default function StaticDemoDashboard() {
       <div className={`static-banner ${screened ? 'static-banner-hold' : ''}`} role="status" aria-live="polite">
         <span className="alert-mark" aria-hidden="true">!</span>
         <div>
-          <strong>{screened ? 'DEMO HOLD — CONTACT EVIDENCE NOT SUPPLIED' : 'STATIC DEMO — NO LEGAL SCREENING RESULT'}</strong>
+          <strong>{screened ? 'SIMULATED DEMO HOLD — PRODUCT NOT CLEARED FOR PUBLICATION' : 'STATIC DEMO — NO LEGAL SCREENING RESULT'}</strong>
           <p>{screened
-            ? 'This title-only example contains no verified manufacturer or EU responsible-person contact documents. Publication is paused in this demonstration only; legal applicability and CE-documentation requirements are not assessed.'
+            ? 'Fail-closed demonstration state: this synthetic title-only listing has no verified manufacturer or EU responsible-person contact documents. This is not a statutory suppression or marketplace action; CE-documentation requirements are not assessed.'
             : 'Choose a sample and select “Screen listing” to see simulated S2 extraction. This page uses no API and does not establish compliance, danger, or recall status.'}</p>
         </div>
       </div>
@@ -118,8 +118,8 @@ export default function StaticDemoDashboard() {
         </section>
 
         <section className="panel static-twin-panel" aria-labelledby="twin-title">
-          <div className="panel-heading"><div><p className="eyebrow">03 / RECALL TWIN REVIEW</p><h2 id="twin-title">Safety Gate reference</h2></div><span className="step-number">NOT VERIFIED</span></div>
-          {!screened ? <div className="corpus-empty"><strong>Awaiting a demo screen</strong><p>Run the local simulation to see extracted title terms and the unverified reference notice.</p></div> : <div>
+          <div className="panel-heading"><div><p className="eyebrow">03 / RECALL TWIN REVIEW</p><h2 id="twin-title">Recall twin comparison</h2></div><span className="step-number">SYNTHETIC FIXTURE</span></div>
+          {!screened ? <div className="corpus-empty"><strong>Awaiting a demo screen</strong><p>Run the local simulation to see extracted title terms and the synthetic fixture comparison.</p></div> : <div>
             <div className="comparison-grid">
               <article className="comparison-side listing-side">
                 <span className="comparison-label">SELECTED DEMO LISTING</span>
@@ -129,11 +129,11 @@ export default function StaticDemoDashboard() {
                 <small>Title-term extraction only; not a risk classification.</small>
               </article>
               {screened.matchingSample?.id === 'magnetic-spheres' ? <article className="comparison-side alert-side">
-                <span className="comparison-label">UNVERIFIED REFERENCE FROM TASK</span>
-                <h3>Alert ref: {UNVERIFIED_ALERT_REFERENCE.alertNumber}</h3>
-                <p>{UNVERIFIED_ALERT_REFERENCE.riskDescription}</p>
-                <div className="unverified-note">{UNVERIFIED_ALERT_REFERENCE.sourceStatus}</div>
-                <div className="term-overlap">Text overlap: “magnetic” appears in both labels. This is not an official alert match, vector match, or finding that products share a defect.</div>
+                <span className="comparison-label">VERIFIED SYNTHETIC DEMO FIXTURE</span>
+                <h3>Scenario reference: {VERIFIED_DEMO_RECALL_FIXTURE.displayReference}</h3>
+                <p>{VERIFIED_DEMO_RECALL_FIXTURE.riskDescription}</p>
+                <div className="unverified-note">{VERIFIED_DEMO_RECALL_FIXTURE.sourceStatus}</div>
+                <div className="term-overlap">Demo term overlap: “magnetic” appears in the listing title and synthetic fixture. This is not an official alert match, vector match, or finding that products share a defect.</div>
               </article> : <article className="comparison-side alert-side">
                 <span className="comparison-label">RECALL DATA STATUS</span>
                 <h3>No verified alert comparison</h3>
@@ -141,7 +141,7 @@ export default function StaticDemoDashboard() {
                 <div className="unverified-note">No comparison made for this product example. No conclusion about recall status or safety.</div>
               </article>}
             </div>
-            <p className="static-recall-disclaimer">The prompt-supplied alert reference is not represented as an official EU record and is not used to determine product safety.</p>
+            <p className="static-recall-disclaimer">The fixture is verified only as synthetic demonstration data. Its scenario reference and hazard wording are not authenticated official EU alert data and are not used to determine product safety.</p>
           </div>}
         </section>
       </div>

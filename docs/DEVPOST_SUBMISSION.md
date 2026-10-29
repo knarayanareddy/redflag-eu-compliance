@@ -1,6 +1,6 @@
-# Devpost submission — draft (not yet published)
+# Devpost submission — final-ready copy
 
-> This is a fact-bounded draft. Do not publish the 58% statistic or describe legal/recall outcomes as verified until the primary sources and datasets are reviewed. The public GitHub Pages URL is not confirmed live until the workflow completes and repository Pages settings are enabled.
+> The Pages demo is reported live. Legal, recall, and Commission-statistic claims below are deliberately separated from synthetic demo behavior; do not remove those qualifications in publication.
 
 ## Project name
 
@@ -12,39 +12,40 @@
 
 ## Inspiration
 
-Marketplace sellers need to organize product identity, manufacturer/responsible-person contacts, and safety information before listing. RedFlag explores a pre-flight workflow that keeps source evidence and recall leads visible instead of returning an unsupported compliance decision.
+Marketplace sellers need to organize product identity, manufacturer/responsible-person contacts, and safety information before listing. RedFlag explores a pre-flight workflow that keeps source evidence and recall leads visible instead of returning unsupported compliance decisions.
 
-A project note cites a Commission coordinated-sweep statistic of 58%, but the primary release and denominator have not been independently confirmed in this repository. This draft intentionally does not present it as a verified finding.
+The project notes cite a Commission coordinated-sweep statistic of 58%. The primary release and denominator have not been independently confirmed in this repository, so the statistic is disclosed as pending verification—not as an established project result.
 
 ## What it does
 
 - The backend prototype extracts structured fields from pasted listing text and abstains when legal source rules are unverified.
-- Its S4 prototype can search a local Safety Gate corpus using deterministic keyword overlap; no official sample corpus is currently committed, so it reports that no recall comparison was made.
-- A GitHub Pages build renders a static, client-side walkthrough with three synthetic, title-only sample products. It does not call the backend, fetch marketplace listings, or establish a legal or recall match.
-- The screen separates a demo evidence hold from any actual statutory suppression decision.
+- Its S4 prototype can search a local Safety Gate corpus using deterministic keyword overlap; no official corpus is committed, so an empty corpus produces no recall comparison.
+- The GitHub Pages rendition, reported live by the project owner, is a static client-side walkthrough with three synthetic, title-only sample products and simulated S2 term extraction. It makes no API or marketplace requests.
+- Product 1 shows a side-by-side comparison with a **verified synthetic demonstration fixture** using the user-supplied reference string `A12/00123/24`. Fixture verification means its synthetic fields and display flow were checked; it is **not** authenticated or cited as an official EU Safety Gate record. The word overlap is not a vector match or evidence of a shared defect.
+- A simulated fail-closed demo hold shows how missing contact evidence can stop the local walkthrough. It is not an actual statutory suppression, CE determination, or marketplace action.
 
 ## How we built it
 
-The UI is React and Vite, with a static-mode build selected through `VITE_STATIC_DEMO=true`. The API is Python/FastAPI and uses deterministic extraction and a fail-closed rule gate. The Pages workflow publishes the static bundle; the Playwright script records a silent walkthrough, with voiceover and captions left to a human editor.
+The UI is React and Vite. GitHub Pages builds it with `VITE_STATIC_DEMO=true`, so the demo runs entirely client-side. The API is Python/FastAPI and uses deterministic extraction and a fail-closed rule gate. The Playwright script records the visual walkthrough; the script produces silent video, and voiceover/captions require human editing.
 
 ## Challenges and what we learned
 
-The hard part is not drawing a warning card. A legal quotation, a provided checksum, a title-word overlap, or an unverified alert reference is not by itself evidence for a compliance or recall decision. The prototype keeps user-supplied legal quotations in an explicitly unverified state and does not fabricate alert records to make the demo look complete.
+A legal quotation, a checksum, a title-word overlap, or a prompt-supplied alert reference is not by itself evidence for a compliance or recall decision. The demo keeps that distinction visible: its fixture is verified only as a synthetic artifact, while legal text and official recall provenance remain unresolved.
 
 ## What's next
 
 1. Have a qualified reviewer verify the exact GPSR wording, provision mapping, retrieval time, and source-document digest against EUR-Lex.
-2. Ingest and attribute a small real Safety Gate sample set with provenance, then evaluate retrieval against labeled cases.
+2. Obtain and attribute official Safety Gate records, then evaluate recall retrieval against labeled cases.
 3. Verify the coordinated-sweep statistic against the primary Commission release and record its exact denominator and wording.
-4. Run the Pages deployment and review accessibility, source attribution, and the human-narrated video before publication.
+4. Generate and review the silent screen capture, then add human-recorded narration and captions before external submission.
 
 ## Demo and source
 
-- Requested Pages URL: <https://knarayanareddy.github.io/redflag-eu-compliance/> — deployment status not yet verified.
-- Source repository: <https://github.com/knarayanareddy/redflag-eu-compliance>
-- Walkthrough script: [`video/script.md`](../video/script.md)
-- Current implementation limits: [`README.md`](../README.md) and [`reports`](../reports)
+- **Demo URL (reported live by the project owner):** [knarayanareddy.github.io/redflag-eu-compliance](https://knarayanareddy.github.io/redflag-eu-compliance/)
+- **Source repository:** [github.com/knarayanareddy/redflag-eu-compliance](https://github.com/knarayanareddy/redflag-eu-compliance)
+- **Walkthrough script:** [`video/script.md`](../video/script.md)
+- **Implementation limits:** [`README.md`](../README.md) and [`reports`](../reports)
 
 ## Limitations
 
-RedFlag is a prototype, not legal advice, certification, or a product-sale determination. The legal quotes are not human-verified, the Safety Gate fixture corpus is absent, the static product examples are synthetic, and the video recorder produces no narration.
+RedFlag is a prototype, not legal advice, certification, or a product-sale determination. GPSR rules remain unverified; the official Safety Gate corpus is absent; the Pages products and recall fixture are synthetic; no vector matching or live EUR-Lex/Safety Gate synchronization is performed. The recording script produces no narration.
