@@ -1,6 +1,7 @@
 # RedFlag — EU product-safety evidence-gate prototype
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-2ea44f?style=for-the-badge)](https://knarayanareddy.github.io/redflag-eu-compliance/)
+[![Submission Status](https://img.shields.io/badge/Submission-READY-success?style=for-the-badge)](docs/DEVPOST_SUBMISSION.md)
 
 > **Status: early prototype, not an EU product-compliance assessment.** RedFlag extracts seller-supplied listing text, runs a fail-closed statutory screening path, and can compare it with a local Safety Gate corpus when one is installed. The current GPSR rules remain unverified, and this checkout has no official Safety Gate sample corpus. Legal compliance verdicts are not enabled.
 
